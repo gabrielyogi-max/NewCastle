@@ -1,0 +1,486 @@
+/* ==========================================
+   EVAARIA SECUNDA - Sistema de Cartas
+   ========================================== */
+
+/* Container de Cartas */
+.card {
+    --card-width: 140px;
+    --card-height: 200px;
+
+    width: var(--card-width);
+    height: var(--card-height);
+    background: var(--color-bg-card);
+    border: 4px solid var(--card-border-color, var(--color-common));
+    border-radius: 0;
+    position: relative;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-pixel);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    user-select: none;
+}
+
+/* Hover e Seleção */
+.card:hover {
+    transform: translateY(-10px) scale(1.05);
+    z-index: 10;
+    box-shadow:
+        var(--shadow-pixel),
+        0 0 20px var(--card-border-color, var(--color-common));
+}
+
+.card.selected {
+    transform: translateY(-20px) scale(1.1);
+    z-index: 20;
+    animation: cardPulse 0.5s ease infinite alternate;
+}
+
+@keyframes cardPulse {
+    from {
+        box-shadow: 0 0 10px var(--card-border-color);
+    }
+
+    to {
+        box-shadow: 0 0 30px var(--card-border-color);
+    }
+}
+
+.card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+}
+
+.card.disabled:hover {
+    transform: none;
+}
+
+/* ==========================================
+   ESTRUTURA DA CARTA
+   ========================================== */
+
+/* Custo de Mana */
+.card-cost {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    width: 32px;
+    height: 32px;
+    background: var(--color-mana);
+    border: 3px solid var(--color-text-bright);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: var(--color-text-bright);
+    z-index: 5;
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+}
+
+/* Arte da Carta */
+.card-art {
+    width: 100%;
+    height: 90px;
+    background: var(--color-bg-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 3px solid var(--card-border-color, var(--color-common));
+    overflow: hidden;
+}
+
+.card-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    image-rendering: pixelated;
+}
+
+.card-art-placeholder {
+    font-size: 2.5rem;
+}
+
+/* Nome da Carta */
+.card-name {
+    font-size: 0.5rem;
+    text-align: center;
+    padding: 0.25rem 0.5rem;
+    background: var(--color-bg-light);
+    color: var(--color-text-bright);
+    border-bottom: 2px solid var(--card-border-color, var(--color-common));
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Tipo e Elemento */
+.card-type-element {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.5rem;
+    background: var(--color-bg-medium);
+}
+
+.card-type {
+    color: var(--color-text-dim);
+}
+
+.card-element {
+    font-size: 0.75rem;
+}
+
+/* Descrição da Carta */
+.card-description {
+    flex: 1;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.375rem;
+    color: var(--color-text-dim);
+    line-height: 1.4;
+    overflow: hidden;
+}
+
+/* Stats da Carta (Ataque/Defesa) */
+.card-stats {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0.5rem;
+    background: var(--color-bg-dark);
+    border-top: 2px solid var(--card-border-color, var(--color-common));
+}
+
+.card-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.625rem;
+}
+
+.card-stat.attack {
+    color: var(--color-fire);
+}
+
+.card-stat.defense {
+    color: var(--color-water);
+}
+
+/* ==========================================
+   CORES POR RARIDADE
+   ========================================== */
+
+.card.common {
+    --card-border-color: var(--color-common);
+}
+
+.card.uncommon {
+    --card-border-color: var(--color-uncommon);
+}
+
+.card.rare {
+    --card-border-color: var(--color-rare);
+}
+
+.card.epic {
+    --card-border-color: var(--color-epic);
+    animation: epicGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes epicGlow {
+    from {
+        box-shadow: var(--shadow-pixel), 0 0 5px var(--color-epic);
+    }
+
+    to {
+        box-shadow: var(--shadow-pixel), 0 0 15px var(--color-epic);
+    }
+}
+
+.card.legendary {
+    --card-border-color: var(--color-legendary);
+    animation: legendaryGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes legendaryGlow {
+    from {
+        box-shadow: var(--shadow-pixel), 0 0 10px var(--color-legendary);
+        border-color: var(--color-legendary);
+    }
+
+    to {
+        box-shadow: var(--shadow-pixel), 0 0 25px var(--color-legendary), 0 0 40px var(--color-primary);
+        border-color: var(--color-primary-glow);
+    }
+}
+
+/* Brilho especial para lendárias */
+.card.legendary::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg,
+            transparent 40%,
+            rgba(255, 215, 0, 0.1) 45%,
+            rgba(255, 215, 0, 0.2) 50%,
+            rgba(255, 215, 0, 0.1) 55%,
+            transparent 60%);
+    animation: legendaryShine 3s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes legendaryShine {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================
+   CORES POR ELEMENTO
+   ========================================== */
+
+.card[data-element="fire"] .card-art {
+    background: linear-gradient(180deg, #2d1810 0%, #1a0a05 100%);
+}
+
+.card[data-element="water"] .card-art {
+    background: linear-gradient(180deg, #0a1a2d 0%, #051020 100%);
+}
+
+.card[data-element="earth"] .card-art {
+    background: linear-gradient(180deg, #1a2d10 0%, #0f1a08 100%);
+}
+
+.card[data-element="air"] .card-art {
+    background: linear-gradient(180deg, #1a1a2d 0%, #0f0f1a 100%);
+}
+
+.card[data-element="light"] .card-art {
+    background: linear-gradient(180deg, #2d2d1a 0%, #1a1a0a 100%);
+}
+
+.card[data-element="dark"] .card-art {
+    background: linear-gradient(180deg, #1a0a2d 0%, #0a0515 100%);
+}
+
+/* ==========================================
+   MÃO DO JOGADOR
+   ========================================== */
+
+.player-hand {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: -30px;
+    padding: 1rem;
+    min-height: 220px;
+    perspective: 1000px;
+}
+
+.player-hand .card {
+    transition: all var(--transition-fast);
+}
+
+/* Efeito de leque */
+.player-hand .card:nth-child(1) {
+    transform: rotate(-12deg);
+}
+
+.player-hand .card:nth-child(2) {
+    transform: rotate(-8deg);
+}
+
+.player-hand .card:nth-child(3) {
+    transform: rotate(-4deg);
+}
+
+.player-hand .card:nth-child(4) {
+    transform: rotate(0deg);
+}
+
+.player-hand .card:nth-child(5) {
+    transform: rotate(4deg);
+}
+
+.player-hand .card:nth-child(6) {
+    transform: rotate(8deg);
+}
+
+.player-hand .card:nth-child(7) {
+    transform: rotate(12deg);
+}
+
+.player-hand .card:hover {
+    transform: translateY(-30px) rotate(0deg) scale(1.15);
+    z-index: 100;
+}
+
+/* ==========================================
+   PILHAS (DECK / DESCARTE)
+   ========================================== */
+
+.deck-pile {
+    width: 80px;
+    height: 110px;
+    background: var(--color-bg-card);
+    border: 3px solid var(--color-primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: var(--shadow-pixel);
+}
+
+.deck-pile.discard {
+    border-color: var(--color-text-dim);
+    opacity: 0.8;
+}
+
+.deck-pile::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: -4px;
+    bottom: -4px;
+    background: var(--color-bg-dark);
+    z-index: -1;
+}
+
+.pile-count {
+    font-size: 1.25rem;
+    color: var(--color-primary);
+}
+
+.pile-label {
+    font-size: 0.5rem;
+    color: var(--color-text-dim);
+    margin-top: 0.25rem;
+}
+
+/* ==========================================
+   CARTAS NO CAMPO
+   ========================================== */
+
+.played-cards {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    min-height: 120px;
+}
+
+.played-cards .card {
+    --card-width: 100px;
+    --card-height: 140px;
+    animation: cardPlay 0.3s ease-out;
+}
+
+@keyframes cardPlay {
+    from {
+        transform: translateY(50px) scale(0.5);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* ==========================================
+   PREVIEW DE CARTA (GRANDE)
+   ========================================== */
+
+.card-preview {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.5);
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.card-preview.visible {
+    opacity: 1;
+}
+
+/* ==========================================
+   COLEÇÃO DE CARTAS
+   ========================================== */
+
+.collection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+
+.collection-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background: var(--color-bg-medium);
+    border-bottom: 3px solid var(--color-primary);
+}
+
+.collection-header h2 {
+    font-size: 1rem;
+    color: var(--color-primary);
+}
+
+.collection-filters {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* ==========================================
+   RESPONSIVIDADE
+   ========================================== */
+
+@media (max-width: 768px) {
+    .card {
+        --card-width: 100px;
+        --card-height: 140px;
+    }
+
+    .card-cost {
+        width: 24px;
+        height: 24px;
+        font-size: 0.625rem;
+    }
+
+    .card-art {
+        height: 60px;
+    }
+
+    .card-name {
+        font-size: 0.375rem;
+    }
+
+    .player-hand {
+        min-height: 160px;
+    }
+
+    .collection-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+    }
+}

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaaria Secunda - RPG Card Battle</title>
+    <meta name="description" content="Um RPG medieval com batalhas por cartas no estilo 8-bit">
+
+    <!-- Google Fonts - Fonte Pixelada -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/cards.css">
+    <link rel="stylesheet" href="css/battle.css">
+    <link rel="stylesheet" href="css/world.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- Tela de Loading -->
+        <div id="loading-screen" class="screen active">
+            <div class="loading-content">
+                <h1 class="game-title">EVAARIA</h1>
+                <h2 class="game-subtitle">SECUNDA</h2>
+                <div class="loading-bar">
+                    <div class="loading-progress"></div>
+                </div>
+                <p class="loading-text">Carregando...</p>
+            </div>
+        </div>
+
+        <!-- Menu Principal -->
+        <div id="menu-screen" class="screen">
+            <div class="menu-content">
+                <div class="title-container">
+                    <h1 class="game-title glowing">EVAARIA</h1>
+                    <h2 class="game-subtitle">SECUNDA</h2>
+                    <p class="tagline">⚔️ RPG Card Battle ⚔️</p>
+                </div>
+                <nav class="menu-buttons">
+                    <button class="menu-btn" id="btn-new-game">
+                        <span class="btn-icon">▶</span> Novo Jogo
+                    </button>
+                    <button class="menu-btn" id="btn-continue" disabled>
+                        <span class="btn-icon">↻</span> Continuar
+                    </button>
+                    <button class="menu-btn" id="btn-collection">
+                        <span class="btn-icon">🃏</span> Coleção
+                    </button>
+                    <button class="menu-btn" id="btn-settings">
+                        <span class="btn-icon">⚙</span> Opções
+                    </button>
+                </nav>
+                <p class="version">v0.1.0</p>
+            </div>
+        </div>
+
+        <!-- Tela de Batalha -->
+        <div id="battle-screen" class="screen">
+            <!-- Área do Inimigo -->
+            <div class="battle-area enemy-area">
+                <div class="character-info enemy-info">
+                    <div class="character-portrait" id="enemy-portrait">
+                        <span class="portrait-placeholder">👹</span>
+                    </div>
+                    <div class="character-stats">
+                        <p class="character-name" id="enemy-name">Inimigo</p>
+                        <div class="health-bar">
+                            <div class="health-fill enemy-health" id="enemy-health"></div>
+                            <span class="health-text" id="enemy-health-text">100/100</span>
+                        </div>
+                        <div class="status-effects" id="enemy-effects"></div>
+                    </div>
+                </div>
+                <div class="enemy-cards" id="enemy-cards">
+                    <!-- Cartas do inimigo aparecem aqui -->
+                </div>
+                <div class="enemy-intent" id="enemy-intent">
+                    <!-- Intenção do inimigo -->
+                </div>
+            </div>
+
+            <!-- Área Central (Campo de Batalha) -->
+            <div class="battlefield">
+                <div class="played-cards" id="played-cards">
+                    <!-- Cartas jogadas neste turno -->
+                </div>
+                <div class="battle-log" id="battle-log">
+                    <!-- Log de ações -->
+                </div>
+            </div>
+
+            <!-- Área do Jogador -->
+            <div class="battle-area player-area">
+                <div class="character-info player-info">
+                    <div class="character-portrait" id="player-portrait">
+                        <span class="portrait-placeholder">🧙</span>
+                    </div>
+                    <div class="character-stats">
+                        <p class="character-name" id="player-name">Herói</p>
+                        <div class="health-bar">
+                            <div class="health-fill player-health" id="player-health"></div>
+                            <span class="health-text" id="player-health-text">100/100</span>
+                        </div>
+                        <div class="mana-bar">
+                            <div class="mana-fill" id="player-mana"></div>
+                            <span class="mana-text" id="player-mana-text">3/10</span>
+                        </div>
+                        <div class="status-effects" id="player-effects"></div>
+                    </div>
+                </div>
+
+                <!-- Mão do Jogador -->
+                <div class="player-hand" id="player-hand">
+                    <!-- Cartas do jogador aparecem aqui -->
+                </div>
+
+                <!-- Controles de Batalha -->
+                <div class="battle-controls">
+                    <div class="deck-info">
+                        <div class="deck-pile" id="draw-pile">
+                            <span class="pile-count">20</span>
+                            <span class="pile-label">Deck</span>
+                        </div>
+                        <div class="deck-pile discard" id="discard-pile">
+                            <span class="pile-count">0</span>
+                            <span class="pile-label">Descarte</span>
+                        </div>
+                    </div>
+                    <button class="action-btn" id="btn-end-turn">
+                        Finalizar Turno
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Mapa (futuro) -->
+        <div id="map-screen" class="screen">
+            <div class="map-container" id="map-container">
+                <!-- Mapa será renderizado aqui -->
+            </div>
+        </div>
+
+        <!-- Tela de Coleção -->
+        <div id="collection-screen" class="screen">
+            <div class="collection-header">
+                <button class="back-btn" id="btn-back-menu">← Voltar</button>
+                <h2>Coleção de Cartas</h2>
+                <div class="collection-filters">
+                    <button class="filter-btn active" data-filter="all">Todas</button>
+                    <button class="filter-btn" data-filter="attack">⚔️</button>
+                    <button class="filter-btn" data-filter="defense">🛡️</button>
+                    <button class="filter-btn" data-filter="magic">✨</button>
+                    <button class="filter-btn" data-filter="support">💚</button>
+                </div>
+            </div>
+            <div class="collection-grid" id="collection-grid">
+                <!-- Cartas da coleção -->
+            </div>
+        </div>
+
+        <!-- Overlay de Vitória/Derrota -->
+        <div id="result-overlay" class="overlay">
+            <div class="result-content">
+                <h2 class="result-title" id="result-title">VITÓRIA!</h2>
+                <div class="rewards" id="rewards">
+                    <!-- Recompensas -->
+                </div>
+                <button class="menu-btn" id="btn-continue-result">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/data/cards.js"></script>
+    <script src="js/data/enemies.js"></script>
+    <script src="js/data/maps.js"></script>
+    <script src="js/engine/game.js"></script>
+    <script src="js/cards/card.js"></script>
+    <script src="js/cards/deck.js"></script>
+    <script src="js/cards/effects.js"></script>
+    <script src="js/battle/battle.js"></script>
+    <script src="js/battle/enemy.js"></script>
+    <script src="js/world/map.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

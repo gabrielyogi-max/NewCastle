@@ -1,0 +1,566 @@
+/* ==========================================
+   EVAARIA SECUNDA - Sistema de Mapa/Exploração
+   ========================================== */
+
+/* Container do Mapa */
+#map-screen {
+    background: var(--color-bg-dark);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#map-screen.active {
+    display: flex;
+}
+
+/* Header do Mapa */
+.map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--color-bg-medium);
+    border-bottom: 3px solid var(--color-primary);
+    z-index: 10;
+}
+
+.map-title {
+    font-size: 0.75rem;
+    color: var(--color-primary);
+}
+
+.player-stats-bar {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.5rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stat-item .icon {
+    font-size: 1rem;
+}
+
+.stat-item .value {
+    color: var(--color-text-bright);
+}
+
+/* Container do Mapa */
+.map-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.map-viewport {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+.map-grid {
+    display: grid;
+    position: absolute;
+    transition: transform 0.2s ease;
+}
+
+/* ==========================================
+   TILES DO MAPA
+   ========================================== */
+
+.tile {
+    --tile-size: 48px;
+    width: var(--tile-size);
+    height: var(--tile-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    position: relative;
+    image-rendering: pixelated;
+    transition: transform 0.1s ease;
+}
+
+/* Tipos de Tile */
+.tile.grass {
+    background: linear-gradient(135deg, #2d5a27 0%, #1e4d1a 100%);
+}
+
+.tile.forest {
+    background: linear-gradient(135deg, #1a4d20 0%, #0f3312 100%);
+}
+
+.tile.water {
+    background: linear-gradient(135deg, #1a4d6e 0%, #0f3348 100%);
+    animation: waterShimmer 3s ease-in-out infinite;
+}
+
+@keyframes waterShimmer {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.tile.mountain {
+    background: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
+}
+
+.tile.path {
+    background: linear-gradient(135deg, #8b7355 0%, #6b5344 100%);
+}
+
+.tile.sand {
+    background: linear-gradient(135deg, #c4a35a 0%, #a68942 100%);
+}
+
+.tile.lava {
+    background: linear-gradient(135deg, #ff4500 0%, #8b0000 100%);
+    animation: lavaGlow 1s ease-in-out infinite alternate;
+}
+
+@keyframes lavaGlow {
+    from {
+        box-shadow: inset 0 0 10px #ff6600;
+    }
+
+    to {
+        box-shadow: inset 0 0 20px #ff4500;
+    }
+}
+
+.tile.wall {
+    background: linear-gradient(135deg, #3d3d3d 0%, #252525 100%);
+    border: 2px solid #4a4a4a;
+}
+
+.tile.floor {
+    background: linear-gradient(135deg, #4a4a5a 0%, #35354a 100%);
+}
+
+.tile.entrance {
+    background: linear-gradient(135deg, #4a3a2a 0%, #352a1a 100%);
+}
+
+.tile.exit {
+    background: linear-gradient(135deg, #3a4a2a 0%, #2a351a 100%);
+}
+
+/* Tile bloqueado/inacessível */
+.tile.blocked {
+    pointer-events: none;
+}
+
+/* Hover em tiles camináveis */
+.tile.walkable:hover {
+    transform: scale(1.05);
+    z-index: 5;
+    box-shadow: 0 0 10px var(--color-primary);
+    cursor: pointer;
+}
+
+/* ==========================================
+   ENTIDADES NO MAPA
+   ========================================== */
+
+/* Jogador */
+.entity-player {
+    position: absolute;
+    width: var(--tile-size, 48px);
+    height: var(--tile-size, 48px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    z-index: 20;
+    transition: left 0.2s ease, top 0.2s ease;
+    animation: playerBob 1s ease-in-out infinite;
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5));
+}
+
+@keyframes playerBob {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+/* Inimigos no mapa */
+.entity-enemy {
+    position: absolute;
+    width: var(--tile-size, 48px);
+    height: var(--tile-size, 48px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    z-index: 15;
+    transition: left 0.3s ease, top 0.3s ease;
+    animation: enemyIdle 2s ease-in-out infinite;
+    cursor: pointer;
+}
+
+@keyframes enemyIdle {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.entity-enemy:hover {
+    filter: brightness(1.3);
+    z-index: 25;
+}
+
+.entity-enemy::after {
+    content: '⚔️';
+    position: absolute;
+    top: -12px;
+    right: -8px;
+    font-size: 0.75rem;
+    animation: enemyAlert 1s ease-in-out infinite;
+}
+
+@keyframes enemyAlert {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: scale(0.8);
+    }
+}
+
+/* NPCs */
+.entity-npc {
+    position: absolute;
+    width: var(--tile-size, 48px);
+    height: var(--tile-size, 48px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    z-index: 15;
+    cursor: pointer;
+}
+
+.entity-npc:hover {
+    filter: brightness(1.3);
+}
+
+.entity-npc::after {
+    content: '💬';
+    position: absolute;
+    top: -10px;
+    right: -6px;
+    font-size: 0.625rem;
+}
+
+/* Itens coletáveis */
+.entity-item {
+    position: absolute;
+    width: var(--tile-size, 48px);
+    height: var(--tile-size, 48px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    z-index: 10;
+    cursor: pointer;
+    animation: itemGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes itemGlow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 5px var(--color-primary));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 15px var(--color-primary-glow));
+    }
+}
+
+/* Portais/Portas */
+.entity-portal {
+    position: absolute;
+    width: var(--tile-size, 48px);
+    height: var(--tile-size, 48px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    z-index: 12;
+    cursor: pointer;
+    animation: portalSpin 4s linear infinite;
+}
+
+@keyframes portalSpin {
+    from {
+        filter: hue-rotate(0deg);
+    }
+
+    to {
+        filter: hue-rotate(360deg);
+    }
+}
+
+/* ==========================================
+   UI DE EXPLORAÇÃO
+   ========================================== */
+
+/* Mini HP bar no mapa */
+.map-health-mini {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--color-bg-medium);
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--color-primary);
+    z-index: 50;
+}
+
+.map-health-mini .health-bar {
+    width: 100px;
+    height: 12px;
+    margin-bottom: 0;
+}
+
+/* Painel de ações */
+.map-actions {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 50;
+}
+
+.map-action-btn {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--color-bg-medium);
+    color: var(--color-text);
+    border: 2px solid var(--color-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.map-action-btn:hover {
+    background: var(--color-primary);
+    color: var(--color-bg-dark);
+}
+
+/* Tooltip de tile */
+.tile-tooltip {
+    position: fixed;
+    background: var(--color-bg-dark);
+    border: 2px solid var(--color-primary);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.5rem;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.tile-tooltip.visible {
+    opacity: 1;
+}
+
+/* ==========================================
+   DIÁLOGOS / INTERAÇÕES
+   ========================================== */
+
+.dialog-box {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 600px;
+    background: var(--color-bg-medium);
+    border: 4px solid var(--color-primary);
+    padding: 1rem;
+    z-index: 60;
+    box-shadow: var(--shadow-pixel);
+}
+
+.dialog-speaker {
+    font-size: 0.75rem;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+}
+
+.dialog-text {
+    font-size: 0.5rem;
+    line-height: 1.8;
+    color: var(--color-text);
+}
+
+.dialog-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.dialog-option {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.5rem;
+    padding: 0.5rem;
+    background: var(--color-bg-light);
+    border: 2px solid var(--color-text-dim);
+    color: var(--color-text);
+    cursor: pointer;
+    text-align: left;
+    transition: all var(--transition-fast);
+}
+
+.dialog-option:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: var(--color-bg-card);
+}
+
+.dialog-continue {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 0.5rem;
+    color: var(--color-text-dim);
+    animation: blink 1s infinite;
+}
+
+/* ==========================================
+   ENCONTRO ALEATÓRIO
+   ========================================== */
+
+.encounter-flash {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-text-bright);
+    z-index: 200;
+    animation: encounterFlash 0.5s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes encounterFlash {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* ==========================================
+   FOG OF WAR (Opcional)
+   ========================================== */
+
+.tile.fog {
+    position: relative;
+}
+
+.tile.fog::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+}
+
+.tile.fog.discovered::after {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.tile.fog.visible::after {
+    display: none;
+}
+
+/* ==========================================
+   RESPONSIVIDADE
+   ========================================== */
+
+@media (max-width: 768px) {
+    .tile {
+        --tile-size: 40px;
+        font-size: 1.25rem;
+    }
+
+    .entity-player,
+    .entity-enemy,
+    .entity-npc {
+        font-size: 1.25rem;
+    }
+
+    .map-header {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .player-stats-bar {
+        gap: 1rem;
+    }
+
+    .dialog-box {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .tile {
+        --tile-size: 32px;
+        font-size: 1rem;
+    }
+
+    .map-health-mini {
+        left: 10px;
+        bottom: 10px;
+    }
+
+    .map-actions {
+        right: 10px;
+        bottom: 10px;
+    }
+}
